@@ -1,0 +1,294 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Library v5.2", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+OrionLib:MakeNotification({
+    Name = "Welcome!",
+    Content = "Você está participando do jogo [Friez Trip Z].",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+ -- > Menu Home < --
+
+local Tab = Window:MakeTab({
+    Name = "Home",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Teleport = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Atualização da lista de jogadores
+local updatingPlayerList = false
+local function updatePlayerList()
+    while updatingPlayerList do
+        wait(5)
+        local playerList = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(playerList, player.Name)
+        end
+        print("Lista de jogadores atualizada:", playerList)
+    end
+end
+
+updatingPlayerList = true
+spawn(updatePlayerList)
+
+local Section = Tab:AddSection({
+    Name = "Home:"
+})
+
+-- Toggle para Supplies!
+local suppliesActive = false
+Tab:AddToggle({
+    Name = "Supplies!",
+    Default = false,
+    Callback = function(Value)
+        suppliesActive = Value
+        while suppliesActive do
+            local args = { [1] = "PICKUP_ITEM", [2] = "MedKit" }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+
+            args = { [1] = "PICKUP_ITEM", [2] = "Donut" }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+
+            wait(0.2)
+        end
+    end
+})
+
+local Section = Tab:AddSection({
+    Name = "HealingHub"
+})
+
+-- Botão para Heal Me!
+Tab:AddButton({
+    Name = "Heal Me!",
+    Callback = function()
+        local args = {
+            [1] = "HEAL_PLAYER",
+            [2] = Players.LocalPlayer,
+            [3] = 1e309  -- Um valor extremamente alto representando "infinito"
+        }
+        ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+    end
+})
+
+-- Toggle para God
+local godModeActive = false
+Tab:AddToggle({
+    Name = "God",
+    Default = false,
+    Callback = function(Value)
+        godModeActive = Value
+        while godModeActive do
+            local args = {
+                [1] = "HEAL_PLAYER",
+                [2] = Players.LocalPlayer,
+                [3] = 1e309
+            }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+            wait(0.2)
+        end
+    end
+})
+
+-- Toggle para Heal All!
+local healAllActive = false  -- Controle para ligar/desligar o loop
+Tab:AddToggle({
+    Name = "Heal All!",
+    Default = false,
+    Callback = function(Value)
+        healAllActive = Value
+        while healAllActive do
+            for _, player in ipairs(Players:GetPlayers()) do
+                local args = {
+                    [1] = "HEAL_PLAYER",
+                    [2] = player,  -- Passa diretamente o jogador (inclusive você)
+                    [3] = 1e309  -- Valor extremamente alto para "cura infinita"
+                }
+                ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+                
+                wait(math.random(200, 300) / 1000)  -- Espera entre 0.2s e 0.3s antes de curar o próximo
+            end
+        end
+    end
+})
+
+local Section = Tab:AddSection({
+    Name = "ToolHub"
+})
+
+-- Função para procurar o item do tipo 'Tool' em subpastas ou modelos dentro de 'Assets'
+local function findToolInAssets(itemName)
+    local assetsFolder = ReplicatedStorage:FindFirstChild("Assets")
+    if assetsFolder then
+        -- Procura recursivamente nas subpastas e modelos dentro de 'Assets'
+        for _, child in pairs(assetsFolder:GetDescendants()) do
+            if child.Name == itemName and child:IsA("Tool") then
+                return child  -- Retorna o Tool encontrado
+            end
+        end
+    end
+    return nil  -- Retorna nil se o Tool não for encontrado
+end
+
+-- Menu suspenso e botão Get!
+local selectedItem = "1"
+Tab:AddDropdown({
+    Name = "Menu Suspenso",
+    Default = "1",
+    Options = {
+        "Gun", "Antidote", "BloodSample", "BloxyCola", "BunkerKey",
+        "Burger", "CatTag", "Glock", "Letter", "Mouldy Donut",
+        "Plank", "RPG"
+    },
+    Callback = function(value)
+        selectedItem = value
+    end
+})
+
+Tab:AddButton({
+    Name = "Get!",
+    Callback = function()
+        if selectedItem and selectedItem ~= "1" then
+            local tool = findToolInAssets(selectedItem)
+            if tool then
+                tool:Clone().Parent = Players.LocalPlayer.Backpack
+                print("Tool clonada e movida para o Backpack!")
+            else
+                warn("Tool '" .. selectedItem .. "' não encontrada dentro da pasta 'Assets' ou suas subpastas.")
+            end
+        end
+    end
+})
+
+-- Configuração do botão
+Tab:AddButton({
+    Name = "Infinite!",
+    Callback = function()
+        print("Botão pressionado! Verificando inventário...")
+
+        -- Função para verificar e modificar IntValues
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        local function modifyIntValues()
+            -- Verifica o inventário do jogador
+            local backpack = player:FindFirstChild("Backpack")
+            if not backpack then
+                warn("Backpack não encontrado!")
+                return
+            end
+
+            -- Procura por ferramentas (Tools) no inventário
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    -- Procura por IntValues dentro da ferramenta
+                    for _, child in ipairs(tool:GetChildren()) do
+                        if child:IsA("IntValue") then
+                            -- Modifica o valor do IntValue
+                            child.Value = 99999999999999999
+                            print("IntValue modificado: ", child.Name, " -> ", child.Value)
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Executa a função ao pressionar o botão
+        modifyIntValues()
+
+        -- Conecta o evento de novas ferramentas
+        local backpack = player:WaitForChild("Backpack")
+        backpack.ChildAdded:Connect(function(child)
+            if child:IsA("Tool") then
+                for _, subChild in ipairs(child:GetChildren()) do
+                    if subChild:IsA("IntValue") then
+                        subChild.Value = 99999999999999999
+                        print("Novo IntValue modificado: ", subChild.Name, " -> ", subChild.Value)
+                    end
+                end
+            end
+        end)
+    end
+})
+
+
+
+
+
+ -- > Menu Teleporte < --
+
+local Section = Teleport:AddSection({
+	Name = "Teleportation Section"
+})
+
+-- Função de teletransporte
+local function teleportToPosition(position)
+    local player = game.Players.LocalPlayer
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(position)
+    else
+        warn("Não foi possível encontrar o HumanoidRootPart do jogador.")
+    end
+end
+
+-- Botões de teleporte
+Teleport:AddButton({
+    Name = "Blox'N Go",
+    Callback = function()
+        teleportToPosition(Vector3.new(-106, 3, 342))
+    end
+})
+
+Teleport:AddButton({
+    Name = "Board of directors",
+    Callback = function()
+        teleportToPosition(Vector3.new(87, 7, -52))
+    end
+})
+
+Teleport:AddButton({
+    Name = "City",
+    Callback = function()
+        teleportToPosition(Vector3.new(-6, 3, 696))
+    end
+})
+
+Teleport:AddButton({
+    Name = "Coffee pot",
+    Callback = function()
+        teleportToPosition(Vector3.new(53, 7, -131))
+    end
+})
+
+Teleport:AddButton({
+    Name = "Kitchen",
+    Callback = function()
+        teleportToPosition(Vector3.new(95, 7, -140))
+    end
+})
+
+Teleport:AddButton({
+    Name = "Science Room",
+    Callback = function()
+        teleportToPosition(Vector3.new(182, 7, -127))
+    end
+})
+
+Teleport:AddButton({
+    Name = "Story room",
+    Callback = function()
+        teleportToPosition(Vector3.new(-20, 7, -21))
+    end
+})
+
+OrionLib:Init()
