@@ -28,9 +28,14 @@ local Combat = Window:MakeTab({
     PremiumOnly = false
 })
 
-
 local Teleport = Window:MakeTab({
     Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Universal = Window:MakeTab({
+    Name = "Universal",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
@@ -334,6 +339,13 @@ Teleport:AddButton({
 })
 
 Teleport:AddButton({
+    Name = "Bathroom",
+    Callback = function()
+        teleportToPosition(Vector3.new(126.23, 7.51, -21.19))
+    end
+})
+
+Teleport:AddButton({
     Name = "City",
     Callback = function()
         teleportToPosition(Vector3.new(-6, 3, 696))
@@ -390,13 +402,18 @@ Teleport:AddButton({
 })
 
 Teleport:AddButton({
+    Name = "Sewer [Karen boss]",
+    Callback = function()
+        teleportToPosition(Vector3.new(-38.80, -35.97, 1010.70))
+    end
+})
+
+Teleport:AddButton({
     Name = "Warehouse",
     Callback = function()
         teleportToPosition(Vector3.new(-252.32, -94.29, 726.37))
     end
 })
-
-
 
 Teleport:AddButton({
     Name = "Warehouse [End]",
@@ -561,6 +578,12 @@ end
 
  -- > Funções < --
 
+local Section = Game:AddSection({
+	Name = "Funções:"
+})
+
+Game:AddLabel("This function removes all objects that can eliminate the player.")
+
 Game:AddButton({
     Name = "Snare objects that kill",
     Callback = function()
@@ -597,6 +620,72 @@ Game:AddButton({
                 Image = "rbxassetid://4483345998",
                 Time = 5
             })
+        end
+    end    
+})
+
+ -- > Universal < --
+
+local InfiniteJumpEnabled = false
+
+Universal:AddToggle({
+	Name = "Infinite Jump",
+	Default = false,
+	Callback = function(Value)
+		InfiniteJumpEnabled = Value
+		print("Infinite Jump: " .. tostring(Value))
+	end    
+})
+
+-- Listener para ativar o Infinite Jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+	if InfiniteJumpEnabled then
+		local player = game.Players.LocalPlayer
+		if player and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+			player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+-- Função para ativar o Fullbright
+local function applyFullbright()
+    local Lighting = game:GetService("Lighting")
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 12
+    Lighting.FogEnd = math.huge -- Define a neblina como infinita
+    Lighting.FogStart = 0
+    Lighting.GlobalShadows = false
+    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255) -- Cor branca
+    Lighting.Ambient = Color3.fromRGB(255, 255, 255) -- Cor branca
+    Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255) -- Cor branca
+    Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255) -- Cor branca
+end
+
+-- Função para desativar o Fullbright (restaurar configurações padrões)
+local function removeFullbright()
+    local Lighting = game:GetService("Lighting")
+    Lighting.Brightness = 1
+    Lighting.ClockTime = 14 -- Horário padrão
+    Lighting.FogEnd = 1000000000000
+    Lighting.FogStart = 0
+    Lighting.GlobalShadows = true
+    Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127) -- Cor padrão
+    Lighting.Ambient = Color3.fromRGB(127, 127, 127) -- Cor padrão
+    Lighting.ColorShift_Bottom = Color3.fromRGB(127, 127, 127) -- Cor padrão
+    Lighting.ColorShift_Top = Color3.fromRGB(127, 127, 127) -- Cor padrão
+end
+
+-- Criando o toggle para ativar/desativar Fullbright
+Universal:AddToggle({
+    Name = "Active Fullbright!",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            applyFullbright()  -- Ativa o Fullbright
+            print("Fullbright Ativado!")
+        else
+            removeFullbright() -- Desativa o Fullbright
+            print("Fullbright Desativado!")
         end
     end    
 })
