@@ -16,6 +16,12 @@ local Tab = Window:MakeTab({
     PremiumOnly = false
 })
 
+local Game = Window:MakeTab({
+	Name = "Funções",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
 local Combat = Window:MakeTab({
     Name = "Combat",
     Icon = "rbxassetid://4483345998",
@@ -383,6 +389,22 @@ Teleport:AddButton({
     end
 })
 
+Teleport:AddButton({
+    Name = "Warehouse",
+    Callback = function()
+        teleportToPosition(Vector3.new(-252.32, -94.29, 726.37))
+    end
+})
+
+
+
+Teleport:AddButton({
+    Name = "Warehouse [End]",
+    Callback = function()
+        teleportToPosition(Vector3.new(-135.32, -68.80, 885.57))
+    end
+})
+
  -- > Help < --
 
 local Section = Help:AddSection({
@@ -537,5 +559,46 @@ game:GetService("ReplicatedStorage").NetworkEvents.RemoteFunction:InvokeServer(u
     end)
 end
 
+ -- > Funções < --
+
+Game:AddButton({
+    Name = "Snare objects that kill",
+    Callback = function()
+        -- Acessa a pasta Interactions e a pasta KillParts
+        local interactions = game.Workspace:FindFirstChild("Interactions")
+        local killParts = interactions and interactions:FindFirstChild("KillParts")
+        
+        -- Verifica se a pasta KillParts existe
+        if killParts then
+            -- Tenta excluir a pasta KillParts
+            local success, errorMessage = pcall(function()
+                killParts:Destroy()
+            end)
+
+            -- Verifica o resultado e mostra a notificação
+            if success then
+                OrionLib:MakeNotification({
+                    Name = "Success in deletion.",
+                    Content = "The object was successfully deleted."
+                })
+            else
+                OrionLib:MakeNotification({
+                    Name = "Failure to exclude.",
+                    Content = "The object could not be removed.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 5
+                })
+            end
+        else
+            -- Caso a pasta KillParts não exista
+            OrionLib:MakeNotification({
+                Name = "Failure to exclude.",
+                Content = "The object could not be found.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+        end
+    end    
+})
 
 OrionLib:Init()
