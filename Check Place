@@ -1,79 +1,43 @@
--- Memória de places e sub places com múltiplos IDs para o mesmo loadstring
-local memoriaPlaces = {
-    [123455789] = "Loadstring",  -- Place único
+-- Tabela que armazena as IDs das places e seus respectivos links
+local placeIds = {
+    [12931609417] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
+    [4954096313] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20trip%20Z"
 }
 
--- Estrutura onde múltiplos IDs executam o mesmo loadstring
-local memoriaSubPlaces = {
-    {5096191125, 5941839954} = "loadstring(game:HttpGet("https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20trip%20Z"))()",   -- Múltiplos IDs para o mesmo loadstring
-    {123456778, 12382882} = "loadstring",    -- Outro exemplo com múltiplos IDs
-}
-
--- Função para verificar se o Place ou SubPlace está na memória
-local function verificarPlaceSubPlace()
-    local placeId = game.PlaceId  -- Obtém o ID do place atual
-    local subPlaceId = game.JobId -- Pode ser usado como sub-place ou outro identificador dependendo do contexto
-
-    -- Etapa 1: Verifique duas vezes o placeId
-    local function verificarPlaceId()
-        local idCorreto = false
-        for i = 1, 2 do  -- Verifica duas vezes
-            if memoriaPlaces[placeId] then
-                idCorreto = true
-                break
-            end
-        end
-        return idCorreto
-    end
-
-    -- Etapa 2: Verifique se a memória de sub places está correta
-    local function verificarSubPlaceMemory()
-        local memoryCorreta = false
-        for ids, script in pairs(memoriaSubPlaces) do
-            for _, id in ipairs(ids) do
-                if id == subPlaceId then
-                    memoryCorreta = true
-                    break
-                end
-            end
-        end
-        return memoryCorreta
-    end
-
-    -- Passo 1: Verificar placeId
-    if verificarPlaceId() then
-        print("PlaceId verificado corretamente!")
+-- Função que tenta executar o loadstring e captura possíveis erros
+local function safeExecute(url)
+    local success, result = pcall(function()
+        loadstring(game:HttpGet(url))()
+    end)
+    
+    if success then
+        print("Script carregado com sucesso de: " .. url)
     else
-        print("PlaceId incorreto! Não pode continuar.")
-        return
-    end
-
-    -- Passo 2: Verificar memória dos sub places
-    if verificarSubPlaceMemory() then
-        print("Memória do Sub Place verificada corretamente!")
-    else
-        print("Memória do Sub Place incorreta! Não pode continuar.")
-        return
-    end
-
-    -- Passo 3: Executar loadstring vinculado
-    -- Verifica se o placeId está na memória
-    if memoriaPlaces[placeId] then
-        loadstring(memoriaPlaces[placeId])()  -- Executa o loadstring para o place
-        print("Place encontrado! Executando loadstring.")
-    end
-
-    -- Verifica se o sub-place está na memória (usando múltiplos IDs)
-    for ids, script in pairs(memoriaSubPlaces) do
-        for _, id in ipairs(ids) do
-            if id == subPlaceId then
-                loadstring(script)()  -- Executa o loadstring para o sub-place
-                print("Sub place encontrado! Executando loadstring.")
-                break
-            end
-        end
+        warn("Erro ao carregar o script de: " .. url .. "\nErro: " .. result)
     end
 end
 
--- Chama a função de verificação
-verificarPlaceSubPlace()
+-- Função para adicionar ou atualizar links de loadstring para uma nova place ID
+local function addOrUpdatePlaceId(placeId, url)
+    placeIds[placeId] = url
+    print("Place ID " .. placeId .. " foi adicionada/atualizada com o link: " .. url)
+end
+
+-- Função principal que verifica a ID da place e executa o loadstring correspondente
+local function executeScriptForPlace()
+    local currentPlaceId = game.PlaceId
+    local scriptUrl = placeIds[currentPlaceId]
+
+    if scriptUrl then
+        print("Encontrado script para a place ID " .. currentPlaceId)
+        safeExecute(scriptUrl)
+    else
+        print("Nenhum script vinculado encontrado para a place ID " .. currentPlaceId)
+    end
+end
+
+-- Executa o script para a place atual
+executeScriptForPlace()
+
+-- Exemplo de como adicionar ou atualizar dinamicamente links:
+-- addOrUpdatePlaceId(123456790, "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/NewScript")
