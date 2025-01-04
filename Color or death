@@ -1,0 +1,128 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "🎄 Library v0.4 🎄",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "SaveConfig"
+})
+
+-- Aba "Game"
+local Game = Window:MakeTab({
+    Name = "Game",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Aba "Event"
+local Event = Window:MakeTab({
+    Name = "Event",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Seção "Event"
+local Section = Event:AddSection({
+    Name = "Event:"
+})
+
+Event:AddLabel("Evento natalino 🎄")
+
+-- Variável que controla o estado da coleta
+local coletaAtiva = false
+
+-- Evento para alternar a coleta automática de presentes
+Event:AddToggle({
+    Name = "Coleta automática de presentes 🎁",
+    Default = false,
+    Callback = function(Value)
+        coletaAtiva = Value
+        if not coletaAtiva then
+            print("Coleta desativada")
+        else
+            print("Coleta ativada")
+        end
+    end    
+})
+
+-- Loop para coletar presentes automaticamente, ativado/desativado pelo toggle
+spawn(function()
+    while wait(1) do  -- Aguarda 1 segundo em cada loop
+        if coletaAtiva then
+            for _, model in pairs(game:GetService("Workspace"):WaitForChild("GameplayAssets"):GetChildren()) do
+                if model.Name == "ChristmasEvent" then
+                    for _, child in pairs(model:GetChildren()) do
+                        local objetoComTouch = child:FindFirstChildWhichIsA("BasePart")
+                        if objetoComTouch and objetoComTouch:FindFirstChild("TouchInterest") then
+                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
+                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1) -- Para garantir que o evento seja ativado
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Seção "Game"
+local Section = Game:AddSection({
+    Name = "Game:"
+})
+
+Game:AddLabel("Marcar o monstro do labirinto.")
+
+-- Variável para controlar o estado do ESP
+local activeEsp = false
+
+-- Função para aplicar o Highlight com base no estado do ESP
+local function updateHighlight()
+    local bill = game.Workspace.GameplayAssets.Monsters:FindFirstChild("Bill")
+    if bill then
+        local highlight = bill:FindFirstChild("Highlight")
+        if highlight then
+            if activeEsp then
+                -- Ativar ESP
+                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                highlight.Enabled = true
+                highlight.FillColor = Color3.fromRGB(123, 0, 0)
+                highlight.FillTransparency = 0
+                highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+                highlight.OutlineTransparency = 0
+            else
+                -- Desativar ESP
+                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                highlight.Enabled = true
+                highlight.FillColor = Color3.fromRGB(255, 255, 255)
+                highlight.FillTransparency = 0.8
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                highlight.OutlineTransparency = 1
+            end
+        else
+            -- Se o Bill não tiver Highlight, cria e aplica as configurações
+            local newHighlight = Instance.new("Highlight")
+            newHighlight.Name = "Highlight"
+            newHighlight.Parent = bill
+            updateHighlight() -- Chama a função novamente para aplicar as configurações corretas
+        end
+    end
+end
+
+-- Função de Callback do Toggle
+Game:AddToggle({
+    Name = "Active Esp",
+    Default = false,
+    Callback = function(Value)
+        activeEsp = Value
+        updateHighlight()  -- Atualiza o Highlight quando o toggle for acionado
+    end    
+})
+
+-- Monitorar continuamente o Bill para garantir que o Highlight esteja sempre atualizado
+spawn(function()
+    while true do
+        updateHighlight() -- Checa se o Highlight está corretamente configurado
+        wait(0.4) -- Verifica a cada 0.4 segundos
+    end
+end)
+
+OrionLib:Init()
