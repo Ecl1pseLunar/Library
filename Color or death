@@ -1,49 +1,35 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "🎄 Library v0.8 🎄",
+    Name = "🎄 Library v0.4 🎄",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "SaveConfig"
 })
 
+-- Aba "Game"
 local Game = Window:MakeTab({
     Name = "Game",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
-}) -- Correção: Adicionado o fechamento do tab `Game`
+})
 
+-- Aba "Event"
 local Event = Window:MakeTab({
     Name = "Event",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
+-- Seção "Event"
 local Section = Event:AddSection({
     Name = "Event:"
 })
 
-Event:AddLabel("Evento natalino 🎄") -- Correção: Ajustado para `Event` ao invés de `Tab`
+Event:AddLabel("Evento natalino 🎄")
 
-local Delay = 1  -- Valor padrão para o delay
-
--- Criando uma interface para o delay
-Tab:AddTextbox({
-    Name = "Digite o delay 🎁",
-    Default = "1",
-    TextDisappear = false,
-    Callback = function(Value)
-        Delay = tonumber(Value)  -- Converte o valor digitado para número
-        if Delay < 0.2 then
-            Delay = 0.2  -- Garante que o delay mínimo seja 0.2
-        elseif Delay > 10 then
-            Delay = 10  -- Garante que o delay máximo seja 10
-        end
-        print("Delay configurado para: " .. Delay)
-    end  
-})
-
-local coletaAtiva = false  -- Variável que controla o estado da coleta
+-- Variável que controla o estado da coleta
+local coletaAtiva = false
 
 -- Evento para alternar a coleta automática de presentes
 Event:AddToggle({
@@ -60,8 +46,8 @@ Event:AddToggle({
 })
 
 -- Loop para coletar presentes automaticamente, ativado/desativado pelo toggle
-spawn(function() -- Usando `spawn` para evitar travamento do script principal
-    while wait(Delay) do  -- Coloca o número digitado no delay aqui! 
+spawn(function()
+    while wait(1) do  -- Aguarda 1 segundo em cada loop
         if coletaAtiva then
             for _, model in pairs(game:GetService("Workspace"):WaitForChild("GameplayAssets"):GetChildren()) do
                 if model.Name == "ChristmasEvent" then
@@ -69,7 +55,7 @@ spawn(function() -- Usando `spawn` para evitar travamento do script principal
                         local objetoComTouch = child:FindFirstChildWhichIsA("BasePart")
                         if objetoComTouch and objetoComTouch:FindFirstChild("TouchInterest") then
                             firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
-                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0.5) -- Para garantir que o evento seja ativado
+                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1) -- Para garantir que o evento seja ativado
                         end
                     end
                 end
@@ -78,13 +64,15 @@ spawn(function() -- Usando `spawn` para evitar travamento do script principal
     end
 end)
 
+-- Seção "Game"
 local Section = Game:AddSection({
     Name = "Game:"
 })
 
 Game:AddLabel("Marcar o monstro do labirinto.")
 
-local activeEsp = false -- Variável para controlar o estado do ESP
+-- Variável para controlar o estado do ESP
+local activeEsp = false
 
 -- Função para aplicar o Highlight com base no estado do ESP
 local function updateHighlight()
@@ -130,9 +118,11 @@ Game:AddToggle({
 })
 
 -- Monitorar continuamente o Bill para garantir que o Highlight esteja sempre atualizado
-while true do
-    updateHighlight() -- Checa se o Highlight está corretamente configurado
-    wait(0.4) -- Verifica a cada 1 segundo
-end
+spawn(function()
+    while true do
+        updateHighlight() -- Checa se o Highlight está corretamente configurado
+        wait(0.4) -- Verifica a cada 0.4 segundos
+    end
+end)
 
 OrionLib:Init()
