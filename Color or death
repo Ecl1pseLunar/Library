@@ -1,7 +1,7 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "🎄 Library v0.4 🎄",
+    Name = "🎄 Library v0.6 🎄",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "SaveConfig"
@@ -11,7 +11,7 @@ local Game = Window:MakeTab({
     Name = "Game",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
-}) -- Correção: Adicionado o fechamento do tab `Game`
+})
 
 local Event = Window:MakeTab({
     Name = "Event",
@@ -29,7 +29,7 @@ local Section = Event:AddSection({
     Name = "Event:"
 })
 
-Event:AddLabel("Evento natalino 🎄") -- Correção: Ajustado para `Event` ao invés de `Tab`
+Event:AddLabel("Evento natalino 🎄")
 
 local coletaAtiva = false  -- Variável que controla o estado da coleta
 
@@ -48,8 +48,8 @@ Event:AddToggle({
 })
 
 -- Loop para coletar presentes automaticamente, ativado/desativado pelo toggle
-spawn(function() -- Usando `spawn` para evitar travamento do script principal
-    while wait(1) do  -- Aguarda 1 segundo em cada loop
+spawn(function()
+    while wait(1) do
         if coletaAtiva then
             for _, model in pairs(game:GetService("Workspace"):WaitForChild("GameplayAssets"):GetChildren()) do
                 if model.Name == "ChristmasEvent" then
@@ -57,7 +57,7 @@ spawn(function() -- Usando `spawn` para evitar travamento do script principal
                         local objetoComTouch = child:FindFirstChildWhichIsA("BasePart")
                         if objetoComTouch and objetoComTouch:FindFirstChild("TouchInterest") then
                             firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
-                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1) -- Para garantir que o evento seja ativado
+                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1)
                         end
                     end
                 end
@@ -118,18 +118,22 @@ Game:AddToggle({
 })
 
 -- Monitorar continuamente o Bill para garantir que o Highlight esteja sempre atualizado
-while true do
-    updateHighlight() -- Checa se o Highlight está corretamente configurado
-    wait(0.4) -- Verifica a cada 1 segundo
-end
+spawn(function()
+    while true do
+        updateHighlight() -- Checa se o Highlight está corretamente configurado
+        wait(0.4) -- Verifica a cada 0.4 segundos
+    end
+end)
 
--- > Funções: < --
+-- Funções: < --
 
 local Section = Function:AddSection({
-	Name = "Funções:"
+    Name = "Funções:"
 })
 
-Function:AddParagraph("Aviso:", "Após pressionar o botão 'Começa', a ação não poderá ser desativada e, ao final do tempo, o jogo será encerrado.") 
+Function:AddParagraph("Aviso:", "Após pressionar o botão 'Começa', a ação não poderá ser desativada e, ao final do tempo, o jogo será encerrado.")
+
+local tempoRestante -- Variável para armazenar o tempo restante
 
 -- Função para adicionar o Textbox
 Function:AddTextbox({
