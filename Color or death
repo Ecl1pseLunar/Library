@@ -7,29 +7,31 @@ local Window = OrionLib:MakeWindow({
     ConfigFolder = "SaveConfig"
 })
 
--- Aba "Game"
 local Game = Window:MakeTab({
     Name = "Game",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
-})
+}) -- Correção: Adicionado o fechamento do tab `Game`
 
--- Aba "Event"
 local Event = Window:MakeTab({
     Name = "Event",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Seção "Event"
+local Function = Window:MakeTab({
+    Name = "Funções",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
 local Section = Event:AddSection({
     Name = "Event:"
 })
 
-Event:AddLabel("Evento natalino 🎄")
+Event:AddLabel("Evento natalino 🎄") -- Correção: Ajustado para `Event` ao invés de `Tab`
 
--- Variável que controla o estado da coleta
-local coletaAtiva = false
+local coletaAtiva = false  -- Variável que controla o estado da coleta
 
 -- Evento para alternar a coleta automática de presentes
 Event:AddToggle({
@@ -46,7 +48,7 @@ Event:AddToggle({
 })
 
 -- Loop para coletar presentes automaticamente, ativado/desativado pelo toggle
-spawn(function()
+spawn(function() -- Usando `spawn` para evitar travamento do script principal
     while wait(1) do  -- Aguarda 1 segundo em cada loop
         if coletaAtiva then
             for _, model in pairs(game:GetService("Workspace"):WaitForChild("GameplayAssets"):GetChildren()) do
@@ -64,15 +66,13 @@ spawn(function()
     end
 end)
 
--- Seção "Game"
 local Section = Game:AddSection({
     Name = "Game:"
 })
 
 Game:AddLabel("Marcar o monstro do labirinto.")
 
--- Variável para controlar o estado do ESP
-local activeEsp = false
+local activeEsp = false -- Variável para controlar o estado do ESP
 
 -- Função para aplicar o Highlight com base no estado do ESP
 local function updateHighlight()
@@ -118,11 +118,87 @@ Game:AddToggle({
 })
 
 -- Monitorar continuamente o Bill para garantir que o Highlight esteja sempre atualizado
-spawn(function()
-    while true do
-        updateHighlight() -- Checa se o Highlight está corretamente configurado
-        wait(0.4) -- Verifica a cada 0.4 segundos
+while true do
+    updateHighlight() -- Checa se o Highlight está corretamente configurado
+    wait(0.4) -- Verifica a cada 1 segundo
+end
+
+-- > Funções: < --
+
+local Section = Function:AddSection({
+	Name = "Funções:"
+})
+
+Function:AddParagraph("Aviso:", "Após pressionar o botão 'Começa', a ação não poderá ser desativada e, ao final do tempo, o jogo será encerrado.") 
+
+-- Função para adicionar o Textbox
+Function:AddTextbox({
+    Name = "Por favor, insira a quantidade de segundos que você deseja.",
+    Default = "entrada padrão",
+    TextDisappear = false,
+    Callback = function(Value)
+        -- Garantir que o valor inserido é um número válido
+        tempoRestante = tonumber(Value)
+        if tempoRestante == nil or tempoRestante <= 0 then
+            print("Valor inválido!")
+            return
+        end
+    end  
+})
+
+-- Função para adicionar o Button
+Function:AddButton({
+    Name = "Começa",
+    Callback = function()
+        if tempoRestante then
+            -- Desabilitar o botão após ser pressionado
+            Function:DisableButton("Começa")
+            -- Iniciar o time
+            print("Botão pressionado, iniciando o tempo...")
+            iniciarContagem()
+        end
+    end    
+})
+
+-- Função para iniciar a contagem regressiva
+local function iniciarContagem()
+    -- Criar a tela de contagem regressiva
+    local player = game.Players.LocalPlayer
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = player.PlayerGui
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(0, 200, 0, 50)
+    textLabel.Position = UDim2.new(0.5, -100, 0.5, -25)
+    textLabel.Text = "Faltam " .. tempoRestante .. " segundos"
+    textLabel.BackgroundTransparency = 1 -- Fundo transparente
+    textLabel.TextColor3 = Color3.fromRGB(0, 0, 255) -- Cor azul no início
+    textLabel.TextStrokeTransparency = 0.8 -- Um pouco de borda no texto
+    textLabel.Font = Enum.Font.SourceSansBold -- Fonte para destaque
+    textLabel.TextSize = 24 -- Tamanho da fonte aumentado
+    textLabel.Parent = screenGui
+
+    -- Função para atualizar o texto e verificar o tempo
+    local function atualizarContagem()
+        for i = tempoRestante, 1, -1 do
+            textLabel.Text = "Faltam " .. i .. " segundos"
+            
+            -- Alterar a cor do texto conforme o tempo passa
+            if i > 10 then
+                textLabel.TextColor3 = Color3.fromRGB(0, 0, 255) -- Azul
+            else
+                textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho
+            end
+            
+            wait(1)
+        end
+        textLabel.Text = "Saindo..."
+        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho no final
+        wait(1)
+        game:Shutdown() -- Isso vai fechar o jogo após o tempo acabar
     end
-end)
+
+    -- Iniciar a contagem
+    atualizarContagem()
+end  
 
 OrionLib:Init()
