@@ -2,9 +2,19 @@
 
 Bem-vindo à Library! Desenvolvemos este hub para jogos nos quais muitos não oferecem suporte a scripts.
 
-# Script:
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Library"))()
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"
+</head>
+<body>
+    <h1>Script</h1>
+  
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Library"))()
+    
+</body>
+</html>
 
 # Direitos Autorais
 
