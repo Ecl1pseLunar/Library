@@ -1,0 +1,53 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({
+    Name = "Library v0.4",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "SaveConfig"
+})
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+OrionLib:MakeNotification({
+    Name = "Welcome",
+    Content = "Você está participando do " .. gameName .. ".",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+local Tab = Window:MakeTab({
+    Name = "Tags",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "Tags:"
+})
+
+Tab:AddParagraph("Aviso:", "Atualmente, só temos essas tags que conseguimos obter.") 
+
+-- Função para adicionar os botões
+local function addTagButton(tagName)
+    Tab:AddButton({
+        Name = tagName,
+        Callback = function()
+            local args = {
+                [1] = "EQUIP_TAG",
+                [2] = tagName
+            }
+            game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer(unpack(args))
+        end
+    })
+end
+
+-- Adicionando os botões em ordem alfabética
+addTagButton("Bully")
+addTagButton("Hoarder")
+addTagButton("Nerd")
+addTagButton("Student")
+addTagButton("Survivor")
+addTagButton("Thief")
+addTagButton("ZombieKiller")
+
+OrionLib:Init()
