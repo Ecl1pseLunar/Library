@@ -1,43 +1,49 @@
--- Tabela que armazena as IDs das places e seus respectivos links
-local placeIds = {
-    [12931609417] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
-    [4954096313] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20trip%20Z"
+-- Tabela de PlaceIDs e SubPlaceIDs com seus respectivos loadstrings
+local scripts = {
+
+-- > Friez Trip Z 🧟 Script < --
+
+    -- PlaceID
+    [4954096313] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Lobby",
+    
+    -- SubPlaceIDs
+    [5941839954] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game",
+    [5096191125] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game",
+    
+-- > Color or Die 🎨 Script < --
+
+    -- PlaceID
+    [12931609417] = {
+        main = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
+        subPlaces = {
+            [13429735204] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
+            [13622138404] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
+            [92691286130182] = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Color%20or%20death",
+        }
+    }
 }
 
--- Função que tenta executar o loadstring e captura possíveis erros
-local function safeExecute(url)
-    local success, result = pcall(function()
-        loadstring(game:HttpGet(url))()
-    end)
+-- Função para carregar o script correto
+local function loadScript(placeId)
+    local scriptData = scripts[placeId]
     
-    if success then
-        print("Script carregado com sucesso de: " .. url)
+    if scriptData then
+        -- Verifica se existe uma URL para o PlaceID
+        if type(scriptData) == "string" then
+            loadstring(game:HttpGet(scriptData))()
+        elseif type(scriptData) == "table" then
+            -- Caso o PlaceID tenha SubPlaceIDs
+            local subPlaceId = game.SubPlaceId
+            local subScript = scriptData.subPlaces[subPlaceId] or scriptData.main
+            loadstring(game:HttpGet(subScript))()
+        end
     else
-        warn("Erro ao carregar o script de: " .. url .. "\nErro: " .. result)
+        -- Loadstring padrão caso o placeId não esteja na tabela
+        print("Nenhum script correspondente encontrado. Executando script padrão.")
+        -- Coloque aqui o loadstring padrão, se necessário
     end
 end
 
--- Função para adicionar ou atualizar links de loadstring para uma nova place ID
-local function addOrUpdatePlaceId(placeId, url)
-    placeIds[placeId] = url
-    print("Place ID " .. placeId .. " foi adicionada/atualizada com o link: " .. url)
-end
-
--- Função principal que verifica a ID da place e executa o loadstring correspondente
-local function executeScriptForPlace()
-    local currentPlaceId = game.PlaceId
-    local scriptUrl = placeIds[currentPlaceId]
-
-    if scriptUrl then
-        print("Encontrado script para a place ID " .. currentPlaceId)
-        safeExecute(scriptUrl)
-    else
-        print("Nenhum script vinculado encontrado para a place ID " .. currentPlaceId)
-    end
-end
-
--- Executa o script para a place atual
-executeScriptForPlace()
-
--- Exemplo de como adicionar ou atualizar dinamicamente links:
--- addOrUpdatePlaceId(123456790, "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/NewScript")
+-- Verifica o PlaceID atual e carrega o script correspondente
+local placeId = game.PlaceId
+loadScript(placeId)
