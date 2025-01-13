@@ -14,56 +14,6 @@ local Game = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Aba "Event"
-local Event = Window:MakeTab({
-    Name = "Event",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
--- Seção "Event"
-local Section = Event:AddSection({
-    Name = "Event:"
-})
-
-Event:AddLabel("Evento natalino 🎄")
-
--- Variável que controla o estado da coleta
-local coletaAtiva = false
-
--- Evento para alternar a coleta automática de presentes
-Event:AddToggle({
-    Name = "Coleta automática de presentes 🎁",
-    Default = false,
-    Callback = function(Value)
-        coletaAtiva = Value
-        if not coletaAtiva then
-            print("Coleta desativada")
-        else
-            print("Coleta ativada")
-        end
-    end    
-})
-
--- Loop para coletar presentes automaticamente, ativado/desativado pelo toggle
-spawn(function()
-    while wait(1) do  -- Aguarda 1 segundo em cada loop
-        if coletaAtiva then
-            for _, model in pairs(game:GetService("Workspace"):WaitForChild("GameplayAssets"):GetChildren()) do
-                if model.Name == "ChristmasEvent" then
-                    for _, child in pairs(model:GetChildren()) do
-                        local objetoComTouch = child:FindFirstChildWhichIsA("BasePart")
-                        if objetoComTouch and objetoComTouch:FindFirstChild("TouchInterest") then
-                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
-                            firetouchinterest(objetoComTouch, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1) -- Para garantir que o evento seja ativado
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
 -- Seção "Game"
 local Section = Game:AddSection({
     Name = "Game:"
