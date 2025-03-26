@@ -1,6 +1,6 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/RScriptz/RobloxScripts/main/OrionLibKeybind.lua')))()
 local Window = OrionLib:MakeWindow({
-    Name = "Library v0.4",
+    Name = "Library v0.8",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "SaveConfig"
