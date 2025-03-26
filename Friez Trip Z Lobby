@@ -15,12 +15,6 @@ OrionLib:MakeNotification({
     Time = 5
 })
 
-local Tab = Window:MakeTab({
-    Name = "Tags",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
 local Tags = Window:MakeTab({
     Name = "Tags",
     Icon = "rbxassetid://4483345998",
@@ -33,7 +27,7 @@ local Universal = Window:MakeTab({
     PremiumOnly = false
 })
 
-local Section = Tab:AddSection({
+local Section = Tags:AddSection({
 	Name = "Tags:"
 })
 
@@ -54,7 +48,7 @@ local function addTagButton(tagName)
 end
 
 local function addUniButton(Name, link)
-    Tags:AddButton({
+    Universal:AddButton({
         Name = Name,
         Callback = function()
             loadstring(game:HttpGet(link))()
