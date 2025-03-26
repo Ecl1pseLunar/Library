@@ -21,6 +21,18 @@ local Tab = Window:MakeTab({
     PremiumOnly = false
 })
 
+local Tags = Window:MakeTab({
+    Name = "Tags",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Universal = Window:MakeTab({
+    Name = "Universal",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
 local Section = Tab:AddSection({
 	Name = "Tags:"
 })
@@ -29,7 +41,7 @@ Tab:AddParagraph("Aviso:", "Atualmente, só temos essas tags que conseguimos obt
 
 -- Função para adicionar os botões
 local function addTagButton(tagName)
-    Tab:AddButton({
+    Tags:AddButton({
         Name = tagName,
         Callback = function()
             local args = {
@@ -37,6 +49,15 @@ local function addTagButton(tagName)
                 [2] = tagName
             }
             game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer(unpack(args))
+        end
+    })
+end
+
+local function addUniButton(Name, link)
+    Tags:AddButton({
+        Name = Name,
+        Callback = function()
+            loadstring(game:HttpGet(link))()
         end
     })
 end
@@ -49,5 +70,7 @@ addTagButton("Student")
 addTagButton("Survivor")
 addTagButton("Thief")
 addTagButton("ZombieKiller")
+
+addUniButton("Dev", "https://raw.githubusercontent.com/realredz/DEX-Explorer/refs/heads/main/Mobile.lua")
 
 OrionLib:Init()
