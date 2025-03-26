@@ -691,11 +691,4 @@ Universal:AddToggle({
     end    
 })
 
-Universal:AddButton({
-	Name = "Dex!",
-	Callback = function()
-      		loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/DEX-Explorer/refs/heads/main/Mobile.lua"))()
-  	end    
-})
-
 OrionLib:Init()
