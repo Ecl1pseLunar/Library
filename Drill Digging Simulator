@@ -1,0 +1,54 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/RScriptz/RobloxScripts/main/OrionLibKeybind.lua')))()
+local Window = OrionLib:MakeWindow({Name = "Library v0.4", HidePremium = false, SaveConfig = true, ConfigFolder = "SaveConfig"})
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+OrionLib:MakeNotification({
+    Name = "Welcome",
+    Content = "Você está participando do " .. gameName .. ".",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+local Tab = Window:MakeTab({
+	Name = "Tab 1",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local TimeDelay = 0.4 -- Tempo inicial do loop (pode ser alterado pelo usuário)
+
+Tab:AddToggle({
+    Name = "Loop Money!",
+    Default = false,
+    Callback = function(Value)
+        -- Variável para controle do loop
+        _G.LoopActive = Value
+
+        -- Função para executar o loop
+        while _G.LoopActive do
+            -- Executa o remote quando ativo
+            local args = {
+                [1] = game:GetService("Players").LocalPlayer:FindFirstChildWhichIsA("Tool") -- Busca automaticamente o primeiro Tool do jogador
+            }
+
+            if args[1] then
+                game:GetService("ReplicatedStorage"):WaitForChild("GiveCash"):FireServer(unpack(args))
+            end
+
+            -- Delay entre as execuções
+            wait(TimeDelay)
+        end
+    end    
+})
+
+Tab:AddTextbox({
+    Name = "Delay",
+    Default = tostring(TimeDelay),
+    TextDisappear = false,
+    Callback = function(Value)
+        -- Atualiza o tempo entre os loops
+        TimeDelay = tonumber(Value) or TimeDelay
+    end   
+})
+
