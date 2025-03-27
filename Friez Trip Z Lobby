@@ -100,38 +100,44 @@ local function createHighlight(character)
 end
 
 ------------------------------------------------------------------
--- Função para criar o BillboardGui
+-- Função para criar o BillboardGui fixo em tamanho
 ------------------------------------------------------------------
 local function createGui(character)
     local head = character:FindFirstChild("Head")
     if head and not head:FindFirstChild("Painel") then
         local painel = Instance.new("BillboardGui")
         painel.Name = "Painel"
+        painel.Adornee = head            -- Garante que o GUI fique fixo na "Head"
         painel.Parent = head
+        painel.AlwaysOnTop = true         -- Renderiza sempre por cima, sem interferência
         painel.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         painel.Active = true
         painel.LightInfluence = 1
-        painel.Size = UDim2.new(0, 200, 0, 50)
-        painel.StudsOffset = Vector3.new(0, 1.5, 0)
+        painel.Size = UDim2.new(0, 200, 0, 50)  -- Define o tamanho fixo em pixels
+        painel.StudsOffset = Vector3.new(0, 2, 0)
         painel.MaxDistance = 1000
 
+        -- Criação do TextLabel "Nome"
         local nome = Instance.new("TextLabel")
         nome.Name = "Nome"
         nome.Parent = painel
         nome.BackgroundTransparency = 1
-        nome.Size = UDim2.new(0, 200, 0, 25)
+        nome.Size = UDim2.new(0, 200, 0, 25) -- Tamanho fixo em pixels
         nome.Font = Enum.Font.SourceSansBold
         nome.TextColor3 = Color3.new(0, 0, 0)
         nome.TextSize = 25
+        nome.TextScaled = false           -- Garante que o texto não redimensione automaticamente
 
+        -- Criação do TextLabel "Vida"
         local vida = Instance.new("TextLabel")
         vida.Name = "Vida"
         vida.Parent = painel
         vida.BackgroundTransparency = 1
-        vida.Size = UDim2.new(0, 200, 0, 25)
+        vida.Size = UDim2.new(0, 200, 0, 25) -- Tamanho fixo em pixels
         vida.Font = Enum.Font.SourceSansBold
         vida.TextColor3 = Color3.new(0, 0, 0)
         vida.TextSize = 25
+        vida.TextScaled = false           -- Evita redimensionamento automático do texto
 
         local uiListLayout = Instance.new("UIListLayout")
         uiListLayout.Parent = painel
@@ -146,12 +152,10 @@ local function removeElements()
     for _, player in ipairs(Players:GetPlayers()) do
         local character = player.Character
         if character then
-            -- Remove Highlight
             local highlight = character:FindFirstChild("Highlight")
             if highlight then
                 highlight:Destroy()
             end
-            -- Remove BillboardGui
             local head = character:FindFirstChild("Head")
             if head then
                 local painel = head:FindFirstChild("Painel")
@@ -164,7 +168,7 @@ local function removeElements()
 end
 
 ------------------------------------------------------------------
--- Função para atualizar Highlight e GUI
+-- Função para atualizar os elementos (Highlight e GUI)
 ------------------------------------------------------------------
 local function updatePlayers()
     for _, player in ipairs(Players:GetPlayers()) do
@@ -194,7 +198,7 @@ local function updatePlayers()
 end
 
 ------------------------------------------------------------------
--- Loop para atualização periódica
+-- Loop de Atualização Periódica
 ------------------------------------------------------------------
 local function startUpdateLoop()
     while toggleActive do
@@ -207,15 +211,15 @@ end
 -- Conexões para eventos de jogadores
 ------------------------------------------------------------------
 Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        wait(1) -- Aguarda a "Head" ser criada
+    player.CharacterAdded:Connect(function(character)
+        wait(1) -- Aguarda a criação da "Head"
         if toggleActive then
             updatePlayers()
         end
     end)
 end)
 
-Players.PlayerRemoving:Connect(function()
+Players.PlayerRemoving:Connect(function(player)
     if toggleActive then
         updatePlayers()
     end
