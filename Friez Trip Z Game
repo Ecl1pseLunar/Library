@@ -1,5 +1,5 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/RScriptz/RobloxScripts/main/OrionLibKeybind.lua')))()
-local Window = OrionLib:MakeWindow({Name = "Library v5.6", HidePremium = false, SaveConfig = true, ConfigFolder = "SaveConfig"})
+local Window = OrionLib:MakeWindow({Name = "Library v5.7", HidePremium = false, SaveConfig = true, ConfigFolder = "SaveConfig"})
 
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
