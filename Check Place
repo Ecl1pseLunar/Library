@@ -1,29 +1,42 @@
 -- Script para verificar se o jogador está em um dos places ou subplaces definidos
--- e executar o script correspondente
+-- e executar o script correspondente.
+-- Você pode facilmente adicionar novos jogos e subdivisões neste mesmo padrão.
 
 local Games = {
-    Lobby = {
-        Places = {4954096313},
-        ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Lobby"
+    ["Friez trip Z"] = {
+        Lobby = {
+            Places = { 4954096313 },
+            ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Lobby"
+        },
+        Game = {
+            Places = { 5941839954, 5096191125 },
+            ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game"
+        }
     },
-    Game = {
-        Places = {5941839954, 5096191125},
-        ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game"
+    ["Drill Digging Simulator"] = {
+        Game = {
+            Places = { 125723653259639 },
+            ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game"
+        }
     }
 }
 
 local currentPlaceId = game.PlaceId
-local executed = false
+local scriptExecuted = false
 
-for groupName, data in pairs(Games) do
-    for _, placeId in ipairs(data.Places) do
-        if currentPlaceId == placeId then
-            print("Executando script para " .. groupName .. " (PlaceId: " .. placeId .. ")")
-            loadstring(game:HttpGet(data.ScriptUrl))()
-            executed = true
-            break
+-- Percorre cada grupo de jogo e suas subdivisões (ex.: Lobby, Game)
+for gameName, subGames in pairs(Games) do
+    for subName, data in pairs(subGames) do
+        for _, placeId in ipairs(data.Places) do
+            if currentPlaceId == placeId then
+                print("Executando script para " .. gameName .. " [" .. subName .. "] (PlaceId: " .. placeId .. ")")
+                loadstring(game:HttpGet(data.ScriptUrl))()
+                scriptExecuted = true
+                break
+            end
         end
+        if scriptExecuted then break end
     end
-    if executed then break end
+    if scriptExecuted then break end
 end
 
