@@ -104,45 +104,46 @@ end
 ------------------------------------------------------------------
 local function createGui(character)
     local head = character:FindFirstChild("Head")
-    if head and not head:FindFirstChild("Painel") then
-        local painel = Instance.new("BillboardGui")
-        painel.Name = "Painel"
-        painel.Adornee = head            -- Garante que o GUI fique fixo na "Head"
-        painel.Parent = head
-        painel.AlwaysOnTop = true         -- Renderiza sempre por cima, sem interferência
-        painel.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        painel.Active = true
-        painel.LightInfluence = 1
-        painel.Size = UDim2.new(0, 200, 0, 50)  -- Define o tamanho fixo em pixels
-        painel.StudsOffset = Vector3.new(0, 2, 0)
-        painel.MaxDistance = 1000
-
-        -- Criação do TextLabel "Nome"
-        local nome = Instance.new("TextLabel")
-        nome.Name = "Nome"
-        nome.Parent = painel
-        nome.BackgroundTransparency = 1
-        nome.Size = UDim2.new(0, 200, 0, 25) -- Tamanho fixo em pixels
-        nome.Font = Enum.Font.SourceSansBold
-        nome.TextColor3 = Color3.new(0, 0, 0)
-        nome.TextSize = 25
-        nome.TextScaled = false           -- Garante que o texto não redimensione automaticamente
-
-        -- Criação do TextLabel "Vida"
-        local vida = Instance.new("TextLabel")
-        vida.Name = "Vida"
-        vida.Parent = painel
-        vida.BackgroundTransparency = 1
-        vida.Size = UDim2.new(0, 200, 0, 25) -- Tamanho fixo em pixels
-        vida.Font = Enum.Font.SourceSansBold
-        vida.TextColor3 = Color3.new(0, 0, 0)
-        vida.TextSize = 25
-        vida.TextScaled = false           -- Evita redimensionamento automático do texto
-
-        local uiListLayout = Instance.new("UIListLayout")
-        uiListLayout.Parent = painel
-        uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    if not head or head:FindFirstChild("Painel") then
+        return
     end
+
+    -- Cria o BillboardGui e configura suas propriedades
+    local painel = Instance.new("BillboardGui")
+    painel.Name = "Painel"
+    painel.Adornee = head            -- Garante que o GUI fique fixo na "Head"
+    painel.Parent = head
+    painel.AlwaysOnTop = true         -- Renderiza sempre por cima, sem interferência
+    painel.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    painel.Active = true
+    painel.LightInfluence = 1
+    painel.Size = UDim2.new(0, 200, 0, 50)  -- Tamanho fixo em pixels
+    painel.StudsOffset = Vector3.new(0, 2, 0)
+    painel.MaxDistance = 1000
+
+    -- Cria o UIListLayout para organizar os elementos verticalmente
+    local uiListLayout = Instance.new("UIListLayout")
+    uiListLayout.Parent = painel
+    uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    -- Função auxiliar para criar um TextLabel com configurações padrão
+    local function createTextLabel(name, layoutOrder)
+        local label = Instance.new("TextLabel")
+        label.Name = name
+        label.Parent = painel
+        label.BackgroundTransparency = 1
+        label.Size = UDim2.new(0, 200, 0, 25) -- Tamanho fixo em pixels
+        label.Font = Enum.Font.SourceSansBold
+        label.TextColor3 = Color3.new(0, 0, 0)
+        label.TextSize = 25
+        label.TextScaled = false           -- Evita redimensionamento automático do texto
+        label.LayoutOrder = layoutOrder
+        return label
+    end
+
+    -- Criação dos TextLabels "Nome" e "Vida" com a ordem de layout
+    local nome = createTextLabel("Nome", 1)
+    local vida = createTextLabel("Vida", 2)
 end
 
 ------------------------------------------------------------------
