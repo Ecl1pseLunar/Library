@@ -158,10 +158,10 @@ end
 -- ELEMENTOS DA INTERFACE (GUI)
 -------------------------------
 -- Adiciona um parágrafo de informações no Tab.
-Tab:AddParagraph("Informações", "Use os controles abaixo para reviver ou curar jogadores.")
+Player:AddParagraph("Informações", "Use os controles abaixo para reviver ou curar jogadores.")
 
 -- Dropdown para seleção de um jogador específico.
-Tab:AddDropdown({
+Player:AddDropdown({
     Name = "Select the player you want",
     Default = "Selecionar",
     Options = getPlayerNames(),
