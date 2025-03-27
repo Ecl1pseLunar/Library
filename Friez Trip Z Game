@@ -649,32 +649,73 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
 end)
 
 -- Função para ativar o Fullbright
+-- Obtém o serviço Lighting
+local Lighting = game:GetService("Lighting")
+
+-- Salva as configurações originais do Lighting em uma tabela
+local originalLighting = {
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd,
+    FogStart = Lighting.FogStart,
+    GlobalShadows = Lighting.GlobalShadows,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    Ambient = Lighting.Ambient,
+    ColorShift_Bottom = Lighting.ColorShift_Bottom,
+    ColorShift_Top = Lighting.ColorShift_Top
+}
+
+-- Monitora a adição de objetos e remove automaticamente qualquer instância de "FogAtmosphere"
+Lighting.DescendantAdded:Connect(function(child)
+    if child.Name == "FogAtmosphere" then
+        child:Destroy()
+    end
+end)
+
+-- Função para aplicar o modo Fullbright
 local function applyFullbright()
-    local Lighting = game:GetService("Lighting")
-    Lighting.Brightness = 2
+    -- Remove FogAtmosphere, se existir
+    local existingFog = Lighting:FindFirstChild("FogAtmosphere")
+    if existingFog then
+        existingFog:Destroy()
+    end
+
+    Lighting.Brightness = 1.2
     Lighting.ClockTime = 12
-    Lighting.FogEnd = math.huge -- Define a neblina como infinita
+    Lighting.FogEnd = math.huge  -- Define a neblina como infinita
     Lighting.FogStart = 0
     Lighting.GlobalShadows = false
-    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255) -- Cor branca
-    Lighting.Ambient = Color3.fromRGB(255, 255, 255) -- Cor branca
-    Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255) -- Cor branca
-    Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255) -- Cor branca
+    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)  -- Cor branca
+    Lighting.Ambient = Color3.fromRGB(255, 255, 255)           -- Cor branca
+    Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)   -- Cor branca
+    Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)      -- Cor branca
 end
 
--- Função para desativar o Fullbright (restaurar configurações padrões)
+-- Função para restaurar as configurações originais do Lighting
 local function removeFullbright()
-    local Lighting = game:GetService("Lighting")
-    Lighting.Brightness = 1
-    Lighting.ClockTime = 14 -- Horário padrão
-    Lighting.FogEnd = 1000000000000
-    Lighting.FogStart = 0
-    Lighting.GlobalShadows = true
-    Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127) -- Cor padrão
-    Lighting.Ambient = Color3.fromRGB(127, 127, 127) -- Cor padrão
-    Lighting.ColorShift_Bottom = Color3.fromRGB(127, 127, 127) -- Cor padrão
-    Lighting.ColorShift_Top = Color3.fromRGB(127, 127, 127) -- Cor padrão
+    -- Remove FogAtmosphere, se existir
+    local existingFog = Lighting:FindFirstChild("FogAtmosphere")
+    if existingFog then
+        existingFog:Destroy()
+    end
+
+    Lighting.Brightness = originalLighting.Brightness
+    Lighting.ClockTime = originalLighting.ClockTime
+    Lighting.FogEnd = originalLighting.FogEnd
+    Lighting.FogStart = originalLighting.FogStart
+    Lighting.GlobalShadows = originalLighting.GlobalShadows
+    Lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
+    Lighting.Ambient = originalLighting.Ambient
+    Lighting.ColorShift_Bottom = originalLighting.ColorShift_Bottom
+    Lighting.ColorShift_Top = originalLighting.ColorShift_Top
 end
+
+-- Exemplo de utilização:
+-- Para aplicar o Fullbright:
+-- applyFullbright()
+
+-- Para restaurar as configurações originais:
+-- removeFullbright()
 
 -- Criando o toggle para ativar/desativar Fullbright
 Universal:AddToggle({
@@ -689,6 +730,173 @@ Universal:AddToggle({
             print("Fullbright Desativado!")
         end
     end    
+})
+
+
+------------------------------------------------------------------
+-- Toggle de Esp
+------------------------------------------------------------------
+
+-- Serviços necessários
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- Variável de controle do toggle
+local toggleActive = false
+
+------------------------------------------------------------------
+-- Função para criar o Highlight
+------------------------------------------------------------------
+local function createHighlight(character)
+    if character and not character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.FillColor = Color3.new(0, 0.666667, 0)
+        highlight.OutlineTransparency = 0.4
+        highlight.FillTransparency = 0.75
+        highlight.Name = "Highlight"
+        highlight.OutlineColor = Color3.new(0, 0.666667, 0)
+        highlight.Enabled = true
+        highlight.Parent = character
+    end
+end
+
+------------------------------------------------------------------
+-- Função para criar o BillboardGui
+------------------------------------------------------------------
+local function createGui(character)
+    local head = character:FindFirstChild("Head")
+    if head and not head:FindFirstChild("Painel") then
+        local painel = Instance.new("BillboardGui")
+        painel.Name = "Painel"
+        painel.Parent = head
+        painel.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        painel.Active = true
+        painel.LightInfluence = 1
+        painel.Size = UDim2.new(0, 200, 0, 50)
+        painel.StudsOffset = Vector3.new(0, 1.5, 0)
+        painel.MaxDistance = 1000
+
+        local nome = Instance.new("TextLabel")
+        nome.Name = "Nome"
+        nome.Parent = painel
+        nome.BackgroundTransparency = 1
+        nome.Size = UDim2.new(0, 200, 0, 25)
+        nome.Font = Enum.Font.SourceSansBold
+        nome.TextColor3 = Color3.new(0, 0, 0)
+        nome.TextSize = 25
+
+        local vida = Instance.new("TextLabel")
+        vida.Name = "Vida"
+        vida.Parent = painel
+        vida.BackgroundTransparency = 1
+        vida.Size = UDim2.new(0, 200, 0, 25)
+        vida.Font = Enum.Font.SourceSansBold
+        vida.TextColor3 = Color3.new(0, 0, 0)
+        vida.TextSize = 25
+
+        local uiListLayout = Instance.new("UIListLayout")
+        uiListLayout.Parent = painel
+        uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
+end
+
+------------------------------------------------------------------
+-- Função para remover Highlight e BillboardGui
+------------------------------------------------------------------
+local function removeElements()
+    for _, player in ipairs(Players:GetPlayers()) do
+        local character = player.Character
+        if character then
+            -- Remove Highlight
+            local highlight = character:FindFirstChild("Highlight")
+            if highlight then
+                highlight:Destroy()
+            end
+            -- Remove BillboardGui
+            local head = character:FindFirstChild("Head")
+            if head then
+                local painel = head:FindFirstChild("Painel")
+                if painel then
+                    painel:Destroy()
+                end
+            end
+        end
+    end
+end
+
+------------------------------------------------------------------
+-- Função para atualizar Highlight e GUI
+------------------------------------------------------------------
+local function updatePlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        local character = player.Character
+        if character then
+            createHighlight(character)
+            createGui(character)
+            local head = character:FindFirstChild("Head")
+            if head then
+                local painel = head:FindFirstChild("Painel")
+                if painel then
+                    local nome = painel:FindFirstChild("Nome")
+                    local vida = painel:FindFirstChild("Vida")
+                    if nome then
+                        nome.Text = player.Name
+                    end
+                    if vida then
+                        local humanoid = character:FindFirstChildOfClass("Humanoid")
+                        if humanoid then
+                            vida.Text = string.format("%d / %d", humanoid.Health, humanoid.MaxHealth)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+------------------------------------------------------------------
+-- Loop para atualização periódica
+------------------------------------------------------------------
+local function startUpdateLoop()
+    while toggleActive do
+        updatePlayers()
+        wait(10)
+    end
+end
+
+------------------------------------------------------------------
+-- Conexões para eventos de jogadores
+------------------------------------------------------------------
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        wait(1) -- Aguarda a "Head" ser criada
+        if toggleActive then
+            updatePlayers()
+        end
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    if toggleActive then
+        updatePlayers()
+    end
+end)
+
+------------------------------------------------------------------
+-- Callback do Toggle
+------------------------------------------------------------------
+Tab:AddToggle({
+    Name = "This is a toggle!",
+    Default = false,
+    Callback = function(Value)
+        toggleActive = Value
+        if toggleActive then
+            updatePlayers()
+            spawn(startUpdateLoop)
+        else
+            removeElements()
+        end
+    end
 })
 
 OrionLib:Init()
