@@ -1,4 +1,7 @@
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/RScriptz/RobloxScripts/main/OrionLibKeybind.lua')))()
+-- Biblioteca OrionLib
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RScriptz/RobloxScripts/main/OrionLibKeybind.lua"))()
+
+-- Cria a janela principal
 local Window = OrionLib:MakeWindow({
     Name = "Library v0.8",
     HidePremium = false,
@@ -6,8 +9,10 @@ local Window = OrionLib:MakeWindow({
     ConfigFolder = "SaveConfig"
 })
 
+-- Obtém o nome do jogo
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
+-- Notificação de boas-vindas
 OrionLib:MakeNotification({
     Name = "Welcome",
     Content = "Você está participando do " .. gameName .. ".",
@@ -15,6 +20,7 @@ OrionLib:MakeNotification({
     Time = 5
 })
 
+-- Criação das abas
 local Tags = Window:MakeTab({
     Name = "Tags",
     Icon = "rbxassetid://4483345998",
@@ -27,13 +33,15 @@ local Universal = Window:MakeTab({
     PremiumOnly = false
 })
 
+-- Seção para as tags
 local Section = Tags:AddSection({
-	Name = "Tags:"
+    Name = "Tags:"
 })
 
-Tab:AddParagraph("Aviso:", "Atualmente, só temos essas tags que conseguimos obter.") 
+-- Parágrafo de aviso na seção de Tags
+Section:AddParagraph("Aviso:", "Atualmente, só temos essas tags que conseguimos obter.")
 
--- Função para adicionar os botões
+-- Função para adicionar botões de tag
 local function addTagButton(tagName)
     Tags:AddButton({
         Name = tagName,
@@ -47,16 +55,17 @@ local function addTagButton(tagName)
     })
 end
 
-local function addUniButton(Name, link)
+-- Função para adicionar botões universais
+local function addUniButton(name, link)
     Universal:AddButton({
-        Name = Name,
+        Name = name,
         Callback = function()
             loadstring(game:HttpGet(link))()
         end
     })
 end
 
--- Adicionando os botões em ordem alfabética
+-- Adiciona os botões de tags em ordem alfabética
 addTagButton("Bully")
 addTagButton("Hoarder")
 addTagButton("Nerd")
@@ -65,6 +74,8 @@ addTagButton("Survivor")
 addTagButton("Thief")
 addTagButton("ZombieKiller")
 
+-- Adiciona um botão universal
 addUniButton("Dev", "https://raw.githubusercontent.com/realredz/DEX-Explorer/refs/heads/main/Mobile.lua")
 
+-- Inicializa a OrionLib
 OrionLib:Init()
