@@ -16,57 +16,72 @@ local Tab = Window:MakeTab({
 	PremiumOnly = false
 })
 
--- Variáveis de controle e parâmetros iniciais
-local LoopActive = false
-local ToolName = "Neon"
-local TimeDelay = 0.4
+-- Variáveis globais configuradas pelas Textboxes
+local IsTool = "Neon"   -- Nome do tool (pode ser alterado via Textbox "Nome")
+local IsDelay = 0.4     -- Delay entre loops (pode ser alterado via Textbox "Delay")
+local LoopMoney = false -- Controla se o loop está ativo
 
--- Toggle para ativar/desativar o loop de envio de requisições
+-- Função que gerencia o loop de envio do remote
+local function startLoop()
+    spawn(function()
+        while LoopMoney do
+            -- Obtém o jogador local e garante que há um Character
+            local player = game:GetService("Players").LocalPlayer
+            if player and player.Character then
+                -- Tenta encontrar o tool com o nome definido em IsTool
+                local tool = player.Character:FindFirstChild(IsTool)
+                if tool then
+                    local args = { tool }
+                    game:GetService("ReplicatedStorage")
+                        :WaitForChild("GiveCash")
+                        :FireServer(unpack(args))
+                else
+                    warn("Ferramenta '" .. IsTool .. "' não encontrada no Character!")
+                end
+            end
+            wait(IsDelay)
+        end
+    end)
+end
+
+-- Toggle para ativar/desativar o loop
 Tab:AddToggle({
     Name = "Loop Money!",
     Default = false,
     Callback = function(Value)
-        LoopActive = Value
-        if LoopActive then
-            -- Iniciamos uma nova thread para o loop
-            coroutine.wrap(function()
-                while LoopActive do
-                    local player = game:GetService("Players").LocalPlayer
-                    -- Espera pela ferramenta com o nome definido em ToolName
-                    local tool = player:WaitForChild(ToolName)
-                    
-                    local args = { tool }  -- Construindo os argumentos para o remote
-                    
-                    -- Envia o remote event "GiveCash" com os argumentos
-                    game:GetService("ReplicatedStorage"):WaitForChild("GiveCash"):FireServer(unpack(args))
-                    
-                    wait(TimeDelay)  -- Pausa pelo tempo definido (TimeDelay)
-                end
-            end)()
+        LoopMoney = Value
+        if LoopMoney then
+            startLoop()
         end
     end    
 })
 
--- Textbox para definir o nome da ferramenta (ToolPlayer)
+-- Textbox para definir o nome do tool
 Tab:AddTextbox({
     Name = "Nome",
     Default = "Neon",
     TextDisappear = false,
     Callback = function(Value)
-        ToolName = Value or "Neon"
-    end      
+        IsTool = Value
+    end   
 })
 
--- Textbox para definir o delay entre os loops (TimeDelay)
+-- Textbox para definir o delay do loop
 Tab:AddTextbox({
     Name = "Delay",
     Default = "0.4",
     TextDisappear = false,
     Callback = function(Value)
-        -- Converte o valor para número; se inválido, usa 0.4 como padrão
-        TimeDelay = tonumber(Value) or 0.4
-    end      
+        local num = tonumber(Value)
+        if num then
+            IsDelay = num
+        else
+            warn("Valor de delay inválido! Utilizando 0.4 como padrão.")
+            IsDelay = 0.4
+        end
+    end   
 })
+
 
 OrionLib:Init()
 
