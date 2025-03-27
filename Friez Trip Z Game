@@ -17,6 +17,12 @@ local Tab = Window:MakeTab({
     PremiumOnly = false
 })
 
+local Player = Window:MakeTab({
+    Name = "Player",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
 local Game = Window:MakeTab({
 	Name = "Funções",
 	Icon = "rbxassetid://4483345998",
@@ -125,31 +131,134 @@ Tab:AddToggle({
     end
 })
 
--- Armazenar o nome do jogador selecionado
+-------------------------------
+-- CONFIGURAÇÃO INICIAL
+-------------------------------
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- OrionLib e Tab são objetos previamente definidos na sua interface.
+-- Certifique-se de que os módulos/objetos necessários estejam carregados.
+
+-- Variável global para armazenar o nome do jogador selecionado no Dropdown.
 local selectedPlayerName = ""
 
--- Função para obter os nomes dos jogadores no servidor
+-------------------------------
+-- FUNÇÕES AUXILIARES
+-------------------------------
+-- Retorna uma tabela com os nomes de todos os jogadores conectados.
 local function getPlayerNames()
     local playerNames = {}
-    for _, player in ipairs(game.Players:GetPlayers()) do
+    for _, player in ipairs(Players:GetPlayers()) do
         table.insert(playerNames, player.Name)
     end
     return playerNames
 end
 
--- Adiciona o menu suspenso
+-------------------------------
+-- ELEMENTOS DA INTERFACE (GUI)
+-------------------------------
+-- Adiciona um parágrafo de informações no Tab.
+Tab:AddParagraph("Informações", "Use os controles abaixo para reviver ou curar jogadores.")
+
+-- Dropdown para seleção de um jogador específico.
 Tab:AddDropdown({
     Name = "Select the player you want",
     Default = "Selecionar",
     Options = getPlayerNames(),
     Callback = function(Value)
-        selectedPlayerName = Value  -- Armazena o nome do jogador selecionado
-        print("Jogador selecionado:", selectedPlayerName)
+        selectedPlayerName = Value  -- Armazena o nome selecionado
+        print("Jogador selecionado: " .. selectedPlayerName)
     end    
 })
 
--- Adiciona o botão de cura
-Tab:AddButton({
+-------------------------------
+-- FUNÇÕES DE REVIVE
+-------------------------------
+-- Botão para reviver o jogador selecionado.
+Player:AddButton({
+    Name = "Revive Player!",
+    Callback = function()
+        if selectedPlayerName == "" then
+            print("Nenhum jogador selecionado.")
+            return
+        end
+
+        local targetPlayer = Players:FindFirstChild(selectedPlayerName)
+        if targetPlayer then
+            -- Aqui você pode inserir a lógica para checar se o jogador está morto
+            -- ou com a vida abaixo de 1. Exemplo: teleportar 20 metros abaixo e criar uma base para evitar void.
+            local args = {
+                [1] = "REVIVE_PLAYER",
+                [2] = targetPlayer  -- Revive o jogador selecionado
+            }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+            print("Revive enviado para: " .. selectedPlayerName)
+        else
+            print("Jogador não encontrado.")
+        end
+    end    
+})
+
+-- Sistema para registrar jogadores mortos (ordem: primeiro a morrer fica na posição 1)
+local deadPlayers = {}
+
+-- Exemplo de função a ser chamada quando um jogador morrer.
+local function onPlayerDeath(player)
+    table.insert(deadPlayers, player.Name)
+    print("Jogador morto registrado: " .. player.Name)
+end
+
+-- Remoção do jogador da lista quando ele sai do jogo (caso esteja na lista de mortos).
+Players.PlayerRemoving:Connect(function(player)
+    for i, name in ipairs(deadPlayers) do
+        if name == player.Name then
+            table.remove(deadPlayers, i)
+            break
+        end
+    end
+end)
+
+-- Botão para reviver o último jogador morto (baseando-se na ordem de morte)
+Player:AddButton({
+    Name = "Revive the last player!!",
+    Callback = function()
+        if #deadPlayers == 0 then
+            print("Nenhum jogador morto registrado.")
+            return
+        end
+
+        local lastDeadPlayerName = deadPlayers[#deadPlayers]
+        local targetPlayer = Players:FindFirstChild(lastDeadPlayerName)
+        if targetPlayer then
+            -- Teleporta 20 metros abaixo e invoca o revive.
+            local args = {
+                [1] = "REVIVE_PLAYER",
+                [2] = targetPlayer
+            }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+            print("Revive realizado para: " .. lastDeadPlayerName)
+
+            -- Notifica o usuário via OrionLib.
+            OrionLib:MakeNotification({
+                Name = "Notificação:",
+                Content = "Você reviveu " .. lastDeadPlayerName,
+                Image = "rbxassetid://6680686532",
+                Time = 1
+            })
+
+            -- Remove o jogador revivido da lista.
+            table.remove(deadPlayers, #deadPlayers)
+        else
+            print("Jogador morto não encontrado: " .. lastDeadPlayerName)
+        end
+    end    
+})
+
+-------------------------------
+-- FUNÇÕES DE HEAL (CURA)
+-------------------------------
+-- Botão para curar o jogador selecionado.
+Player:AddButton({
     Name = "Heal Player!",
     Callback = function()
         if selectedPlayerName == "" then
@@ -157,16 +266,14 @@ Tab:AddButton({
             return
         end
 
-        -- Envia a requisição para curar o jogador selecionado
-        local player = game.Players:FindFirstChild(selectedPlayerName)
+        local player = Players:FindFirstChild(selectedPlayerName)
         if player then
             local args = {
                 [1] = "HEAL_PLAYER",
-                [2] = player,  -- Passa o objeto do jogador
-                [3] = 1e309  -- Um valor extremamente alto representando "infinito"
+                [2] = player,   -- Objeto do jogador
+                [3] = 1e309     -- Valor extremamente alto para representar "infinito"
             }
-            -- Envia a requisição ao servidor
-            game.ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
             print(selectedPlayerName .. " foi curado!")
         else
             print("Jogador não encontrado.")
@@ -174,27 +281,52 @@ Tab:AddButton({
     end    
 })
 
--- Toggle para Heal All!
-local healAllActive = false  -- Controle para ligar/desligar o loop
-Tab:AddToggle({
+-- Parágrafo informativo para a cura em massa.
+Player:AddParagraph("Heal All Players!", "Deseja curar todos os jogadores no servidor? Use os botões abaixo para administrar a cura.")
+
+-- Botão para curar todos os jogadores uma única vez.
+Player:AddButton({
     Name = "Heal All!",
+    Callback = function()
+        for _, player in ipairs(Players:GetPlayers()) do
+            local args = {
+                [1] = "HEAL_PLAYER",
+                [2] = player,
+                [3] = 1e309
+            }
+            ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+        end
+        print("Todos os jogadores foram curados!")
+    end    
+})
+
+-- Toggle para ativar a cura contínua de todos os jogadores.
+local healAllActive = false  -- Controle para ligar/desligar o loop
+
+Player:AddToggle({
+    Name = "Continuous Heal All",
     Default = false,
     Callback = function(Value)
         healAllActive = Value
-        while healAllActive do
-            for _, player in ipairs(Players:GetPlayers()) do
-                local args = {
-                    [1] = "HEAL_PLAYER",
-                    [2] = player,  -- Passa diretamente o jogador (inclusive você)
-                    [3] = 1e309  -- Valor extremamente alto para "cura infinita"
-                }
-                ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
-                
-                wait(math.random(200, 300) / 1000)  -- Espera entre 0.2s e 0.3s antes de curar o próximo
-            end
+        if healAllActive then
+            -- Executa o loop em uma thread separada para não travar a interface.
+            spawn(function()
+                while healAllActive do
+                    for _, player in ipairs(Players:GetPlayers()) do
+                        local args = {
+                            [1] = "HEAL_PLAYER",
+                            [2] = player,
+                            [3] = 1e309
+                        }
+                        ReplicatedStorage.NetworkEvents.RemoteFunction:InvokeServer(unpack(args))
+                        wait(math.random(200, 300) / 1000)  -- Delay entre 0.2s e 0.3s
+                    end
+                end
+            end)
         end
     end
 })
+
 
 local Section = Tab:AddSection({
     Name = "ToolHub"
