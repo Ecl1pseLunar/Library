@@ -16,7 +16,7 @@ local Games = {
     ["Drill Digging Simulator"] = {
         Game = {
             Places = { 125723653259639 },
-            ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Friez%20Trip%20Z%20Game"
+            ScriptUrl = "https://raw.githubusercontent.com/Ecl1pseLunar/Library/refs/heads/main/Drill%20Digging%20Simulator"
         }
     }
 }
