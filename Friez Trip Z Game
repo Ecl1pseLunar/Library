@@ -885,8 +885,8 @@ end)
 ------------------------------------------------------------------
 -- Callback do Toggle
 ------------------------------------------------------------------
-Tab:AddToggle({
-    Name = "This is a toggle!",
+Universal:AddToggle({
+    Name = "Active Esp!",
     Default = false,
     Callback = function(Value)
         toggleActive = Value
