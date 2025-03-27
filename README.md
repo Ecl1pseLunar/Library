@@ -18,7 +18,7 @@ Bem-vindo à Library! Desenvolvemos este hub para jogos nos quais muitos não of
 
 # Direitos Autorais
 
-© 2024 EclipseLunar. Todos os direitos reservados.
+© 2025 EclipseLunar. Todos os direitos reservados.
 
 Este script foi desenvolvido para uso pessoal e/ou educacional. Você está autorizado a usar este script, desde que o faça de acordo com os Termos de Uso e a legislação aplicável. No entanto, a modificação, redistribuição ou qualquer alteração no código-fonte do script **não é permitida sem autorização expressa de EclipseLunar**.
 
